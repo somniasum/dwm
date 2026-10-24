@@ -7,12 +7,8 @@ static const char unknown_str[] = "--";      /* shown when a value is unavailabl
 
 static const struct arg args[] = {
 	/* function     format                       argument */
-	{ cpu_perc,     "[ ctOS ] [ cpu %s%% ] ",    NULL },
+	{ cpu_perc,     "[ cpu %s%% ] ",             NULL },
 	{ ram_perc,     "[ ram %s%% ] ",             NULL },
 	{ temp,         "[ %sC ] ",                  "@TEMP@" },
-	{ netspeed_rx,  "[ rx %s ",                  "@IFACE@" },
-	{ netspeed_tx,  "tx %s ] ",                  "@IFACE@" },
-	{ ipv4,         "[ vpn %s ] ",               "tun0" },   /* HackTheBox / OpenVPN interface */
-	{ uptime,       "[ up %s ] ",                NULL },
 	{ datetime,     "[ %s ]",                    "%a %d %b  %H:%M" },
 };
