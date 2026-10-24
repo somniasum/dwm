@@ -14,7 +14,7 @@ command to rebuild it on a fresh install.
 
 ```bash
 sudo dnf install git          # if git is not there yet
-git clone https://github.com/<you>/dwm-setup.git
+git clone https://github.com/somniasum/dwm.git
 cd dwm-setup
 ./install.sh        # 'permission denied'? run: chmod +x install.sh   (or: sh install.sh)
 ```
@@ -103,7 +103,7 @@ changes that), or immediately when you **middle-click the workspace numbers** in
 cd dwm-setup
 git init && git add . && git commit -m "dwm setup"
 git branch -M main
-git remote add origin git@github.com:<you>/dwm-setup.git
+git remote add origin git@github.com:somniasum/dwm.git
 git push -u origin main
 ```
 
