@@ -1,0 +1,16 @@
+#!/bin/sh
+# ~/.xinitrc  (used by startx, and by GDM through the dwm session entry)
+
+xset r rate 250 40          # fast key repeat
+xset s off -dpms            # no screen blanking
+xsetroot -solid '#000000'   # fallback if the wallpaper is missing
+
+# wallpaper: feh paints the root window once and exits (no daemon, no RAM kept)
+[ -f "$HOME/.config/wallpaper.png" ] && feh --no-fehbg --bg-fill "$HOME/.config/wallpaper.png" &
+
+# optional, uncomment what you want:
+# powerprofilesctl set performance   # CPU favours speed over power saving
+# picom -b --backend glx --vsync     # only if you see tearing (costs a little GPU)
+
+slstatus &
+exec dwm

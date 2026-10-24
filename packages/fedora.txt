@@ -1,0 +1,27 @@
+# Packages installed by install.sh (one per line, # = comment)
+# build tools
+gcc
+make
+git
+patch
+iproute
+libX11-devel
+libXft-devel
+libXinerama-devel
+fontconfig-devel
+freetype-devel
+# X session
+xorg-x11-server-Xorg
+xorg-x11-xinit
+/usr/bin/xset
+/usr/bin/xsetroot
+/usr/bin/xinput
+# launcher, screenshots, wallpaper, media keys
+dmenu
+j4-dmenu-desktop
+scrot
+xclip
+feh
+playerctl
+# fonts
+dejavu-sans-mono-fonts

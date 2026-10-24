@@ -1,0 +1,17 @@
+#!/bin/sh
+# shot [region|full|window]
+# Saves a PNG to ~/Pictures/Screenshots and copies it to the clipboard.
+dir="$HOME/Pictures/Screenshots"
+mkdir -p "$dir"
+f="$dir/$(date +%Y-%m-%d_%H-%M-%S).png"
+
+case "${1:-region}" in
+	region) sleep 0.2; scrot -s "$f" ;;   # tiny delay so the key release doesn't break the pointer grab
+	window) scrot -u "$f" ;;
+	full)   scrot "$f" ;;
+	*)      echo "usage: shot [region|full|window]" >&2; exit 1 ;;
+esac
+
+# if the selection was cancelled (Esc), there is no file and nothing to copy
+[ -f "$f" ] && xclip -selection clipboard -t image/png -i "$f" >/dev/null 2>&1
+exit 0

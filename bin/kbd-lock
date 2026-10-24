@@ -1,0 +1,41 @@
+#!/bin/sh
+# kbd-lock [lock [SECONDS] | unlock | toggle]
+#
+# Disables every keyboard device in X (handy for cleaning, or for a cat on the desk).
+# A disabled keyboard cannot send the key that re-enables it, so there are two safety nets:
+#   1. it unlocks by itself after SECONDS (default 120, or $KBD_LOCK_SECONDS)
+#   2. MIDDLE-CLICK the workspace numbers in the dwm bar to unlock immediately
+# You can also unlock from another machine or TTY-less session with:  kbd-lock unlock
+state="${XDG_RUNTIME_DIR:-/tmp}/kbd-lock.state"   # line 1 = lock stamp, then one device id per line
+
+ids() {
+	xinput list | grep 'slave  *keyboard' | grep -v 'XTEST' | grep -o 'id=[0-9]*' | cut -d= -f2
+}
+
+lock() {
+	[ -f "$state" ] && { echo "keyboard already locked"; return 0; }
+	secs="${1:-${KBD_LOCK_SECONDS:-120}}"
+	list=$(ids)
+	[ -n "$list" ] || { echo "kbd-lock: no keyboard devices found" >&2; exit 1; }
+	stamp=$(date +%s%N)
+	{ echo "$stamp"; echo "$list"; } > "$state"
+	sleep 0.3                                   # let the shortcut keys be released first
+	echo "$list" | while read -r i; do xinput disable "$i"; done
+	# self-unlock timer; only fires if THIS lock is still the active one
+	setsid sh -c 'sleep "$1"; exec "$2" unlock-if "$3"' sh "$secs" "$0" "$stamp" >/dev/null 2>&1 &
+}
+
+unlock() {
+	[ -f "$state" ] || return 0
+	tail -n +2 "$state" | while read -r i; do xinput enable "$i"; done
+	rm -f "$state"
+}
+
+case "${1:-toggle}" in
+	lock)       lock "$2" ;;
+	unlock)     unlock ;;
+	unlock-if)  [ -f "$state" ] && [ "$(head -n1 "$state")" = "$2" ] && unlock ;;
+	toggle)     if [ -f "$state" ]; then unlock; else lock "$2"; fi ;;
+	*)          echo "usage: kbd-lock [lock [SECONDS] | unlock | toggle]" >&2; exit 1 ;;
+esac
+exit 0

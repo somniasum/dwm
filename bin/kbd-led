@@ -1,0 +1,8 @@
+#!/bin/sh
+# kbd-led: toggle the keyboard LEDs (Caps/Num/Scroll indicators) on or off with xset.
+mask=$(xset q | awk '/LED mask/ {print $3}')
+if [ "$mask" = "00000000" ]; then
+	xset led on
+else
+	xset led off
+fi
