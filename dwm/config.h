@@ -2,7 +2,7 @@
 #include <X11/XF86keysym.h>
 
 /* palette (string macros so dmenu can reuse them) */
-#define FONT    "DejaVu Sans Mono:size=10"  /* explicit font = no fontconfig fallback scans */
+#define FONT    "0xProto Nerd Font Mono:size=10"  /* explicit font = no fontconfig fallback scans */
 #define C_BG    "#000000"
 #define C_DIM   "#8a8a8a"
 #define C_ACC   "#ff2a2a"   /* red accent: selected tag, focused border, launcher highlight */
