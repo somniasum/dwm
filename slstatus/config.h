@@ -1,8 +1,7 @@
 /* slstatus config.h: every item is wrapped as [ info ].
- * install.sh substitutes the network interface and CPU temperature file. */
 
 const unsigned int interval = 1000;          /* ms between updates */
-static const char unknown_str[] = "--";      /* shown when a value is unavailable (e.g. VPN down) */
+static const char unknown_str[] = "--";      /* for when there is no data */
 #define MAXLEN 2048
 
 static const struct arg args[] = {
