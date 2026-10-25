@@ -16,12 +16,13 @@ xorg-x11-xinit
 /usr/bin/xset
 /usr/bin/xsetroot
 /usr/bin/xinput
-# launcher, screenshots, wallpaper, media keys
+# launcher, screenshots, wallpaper, volume (wpctl) and media keys
 dmenu
 j4-dmenu-desktop
 scrot
 xclip
 feh
 playerctl
+wireplumber
 # fonts
 dejavu-sans-mono-fonts

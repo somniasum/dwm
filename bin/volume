@@ -1,0 +1,40 @@
+#!/bin/sh
+# volume [up|down|mute|sync|watch]
+#
+# Changes the PipeWire default-sink volume with wpctl, then writes the result to
+# /run/user/<uid>/volume, which slstatus shows as "[ vol 45% ]".
+# Nothing polls: the bar just reads a tiny file, and this script only runs when you press a key.
+#
+#   up / down   +5% / -5% (never above 100%)
+#   mute        toggle mute
+#   sync        refresh the file only (xinitrc runs this at login)
+#   watch       optional: follow PipeWire events so the bar also tracks changes made elsewhere
+#               (pavucontrol, apps). Needs `pactl` (package: pulseaudio-utils); one idle process.
+sink='@DEFAULT_AUDIO_SINK@'
+dir="/run/user/$(id -u)"
+[ -d "$dir" ] || dir=/tmp
+file="$dir/volume"
+
+write() {
+	# wpctl prints "Volume: 0.45" or "Volume: 0.45 [MUTED]"
+	v=$(wpctl get-volume "$sink" 2>/dev/null | awk '{ if ($0 ~ /MUTED/) print "mute"; else printf "%d%%\n", $2 * 100 + 0.5 }')
+	[ -n "$v" ] || v="--"
+	printf '%s\n' "$v" > "$file.tmp" && mv "$file.tmp" "$file"
+	[ "$v" != "--" ]
+}
+
+case "${1:-sync}" in
+	up)    wpctl set-volume -l 1.0 "$sink" 5%+ ;;
+	down)  wpctl set-volume "$sink" 5%- ;;
+	mute)  wpctl set-mute "$sink" toggle ;;
+	sync)  ;;
+	watch)
+		command -v pactl >/dev/null 2>&1 || { echo "volume watch: pactl not found (dnf install pulseaudio-utils)" >&2; exit 1; }
+		write
+		pactl subscribe | while read -r ev; do
+			case "$ev" in *" on sink "*|*" on server"*) write ;; esac
+		done
+		exit 0 ;;
+	*)     echo "usage: volume [up|down|mute|sync|watch]" >&2; exit 1 ;;
+esac
+write

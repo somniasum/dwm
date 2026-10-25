@@ -66,7 +66,7 @@ static const char *launchcmd[] = { "/bin/sh", "-c",
 /* raw command runner: anything in $PATH (dwm.c expects the names dmenucmd / dmenumon) */
 static char dmenumon[2] = "0";
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-i", "-fn", FONT, "-nb", C_BG, "-nf", C_DIM, "-sb", C_ACC, "-sf", C_BG, NULL };
-static const char *termcmd[]  = { "st", NULL };
+static const char *termcmd[]  = { "alacritty", NULL };
 
 /* helper scripts (installed to /usr/local/bin by install.sh) */
 static const char *shotregion[] = { "/usr/local/bin/shot", "region", NULL };
@@ -76,10 +76,10 @@ static const char *ledtoggle[]  = { "/usr/local/bin/kbd-led", NULL };
 static const char *kbdlock[]    = { "/usr/local/bin/kbd-lock", "lock", NULL };
 static const char *kbdunlock[]  = { "/usr/local/bin/kbd-lock", "unlock", NULL };
 
-/* audio (PipeWire) and media players (MPRIS) */
-static const char *volup[]    = { "wpctl", "set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+", NULL };
-static const char *voldown[]  = { "wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-", NULL };
-static const char *volmute[]  = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
+/* audio (PipeWire) and media players (MPRIS); bin/volume also feeds the bar's [ vol ] item */
+static const char *volup[]    = { "/usr/local/bin/volume", "up",   NULL };
+static const char *voldown[]  = { "/usr/local/bin/volume", "down", NULL };
+static const char *volmute[]  = { "/usr/local/bin/volume", "mute", NULL };
 static const char *micmute[]  = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle", NULL };
 static const char *mediaplay[] = { "playerctl", "play-pause", NULL };
 static const char *medianext[] = { "playerctl", "next", NULL };
@@ -118,6 +118,7 @@ static const Key keys[] = {
 	/* windows */
 	{ MODKEY,                       XK_q,                     killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_q,                     quit,           {0} },
+	{ MODKEY|ShiftMask,             XK_r,                     quit,           {.i = 1} },  /* restart dwm in place (needs restart.diff) */
 	{ MODKEY,                       XK_b,                     togglebar,      {0} },
 	{ MODKEY,                       XK_j,                     focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,                     focusstack,     {.i = -1 } },
