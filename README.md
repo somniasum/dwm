@@ -36,6 +36,7 @@ dwm/config.h                dwm config: colors, font, keys, launcher
 dwm/patches/                *.diff, every patch here is applied in order:
                               centered-status.diff  status text centered in the bar
                               restart.diff          Super+Shift+r restarts dwm in place
+                              status-colors.diff    red [ ] brackets, separate colour for the info text
 slstatus/config.h           status bar items (temperature + volume paths filled in by the installer)
 st/colors.h                 the st colour table (palette + cursor + default colours)
 st/apply-theme.sh           builds st's config.h from the pristine config.def.h + colors.h + font
@@ -79,6 +80,14 @@ The font is set once, in the `FONT` line of `dwm/config.h`; dmenu and st use the
 | Middle-click workspace numbers | unlock the keyboard                    |
 
 Media keys on your keyboard (volume, mic, play/next/prev) work too.
+
+### Status bar colours
+
+slstatus cannot colour text, so `slstatus/config.h` puts two control bytes in each item: `\001` switches
+to the bracket colour and `\002` to the info colour, and `status-colors.diff` makes dwm read them.
+The colours are `C_BRACK` (red, same as the accent) and `C_INFO` (light grey) at the top of `dwm/config.h`.
+Set `C_INFO` to `C_ACC` for an all-red bar. After changing them, re-run the installer, press
+Super+Shift+r, and restart slstatus: `pkill slstatus; setsid slstatus >/dev/null 2>&1 &`.
 
 ### Volume in the bar
 
@@ -124,7 +133,7 @@ To tweak a colour, edit `st/colors.h` and re-run `./install.sh --no-packages --n
 - **`[ vol -- ]`**: `wpctl get-volume @DEFAULT_AUDIO_SINK@` must work (package `wireplumber`); then run `volume sync`.
 - **`[ --C ]`**: find the right file with `grep . /sys/class/thermal/thermal_zone*/type`, edit
   `~/suckless/slstatus/config.h`, then `make && sudo make install` in that folder.
-- **Patch does not apply**: `git -C ~/suckless/dwm checkout 6.8`, then re-run the installer.
+- **Patch does not apply**: `git -C ~/suckless/dwm checkout 6.8 -- dwm.c`, then re-run the installer (it also resets dwm.c itself on every run).
 - **Icons or letters look wrong in the bar**: the Nerd Font download failed; re-run `./install.sh --no-packages`.
 
 The DedSec wallpapers are Watch Dogs artwork.

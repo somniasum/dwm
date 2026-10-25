@@ -37,7 +37,7 @@ die() {
 # ---- sanity checks ---------------------------------------------------------
 [ "$(id -u)" -ne 0 ] || die "run this as your normal user, not root (it calls sudo where needed)"
 [ -r /etc/fedora-release ] || echo "warning: this does not look like Fedora; the package step may fail"
-for f in dwm/config.h dwm/patches/centered-status.diff dwm/patches/restart.diff \
+for f in dwm/config.h dwm/patches/centered-status.diff dwm/patches/restart.diff dwm/patches/status-colors.diff \
   slstatus/config.h st/colors.h st/apply-theme.sh \
   bin/shot bin/kbd-led bin/kbd-lock bin/volume config/xinitrc session/dwm.desktop \
   packages/fedora.txt wallpapers/dedsec-red.png; do
@@ -91,6 +91,12 @@ fi
 # ---- 4. dwm (+ every patch in dwm/patches) ------------------------------------
 say "Building dwm"
 cd "$SRC/dwm"
+# Patches can overlap (status-colors.diff builds on centered-status.diff), so start every
+# build from pristine dwm.c and apply the whole set in order. That makes re-runs reliable.
+if [ -d .git ]; then
+  git checkout -q "$DWM_REF" -- dwm.c
+  echo "    dwm.c reset to $DWM_REF"
+fi
 for p in "$REPO"/dwm/patches/*.diff; do
   name=$(basename "$p")
   if patch -p1 -R --dry-run -s <"$p" >/dev/null 2>&1; then
@@ -99,7 +105,7 @@ for p in "$REPO"/dwm/patches/*.diff; do
     patch -p1 -s <"$p"
     echo "    $name: applied"
   else
-    die "$name does not apply to your dwm checkout. Run: git -C $SRC/dwm checkout $DWM_REF   and re-run."
+    die "$name does not apply to $SRC/dwm. Restore a clean 6.8 dwm.c (git -C $SRC/dwm checkout $DWM_REF -- dwm.c) and re-run."
   fi
 done
 cp "$REPO/dwm/config.h" config.h

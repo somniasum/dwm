@@ -2,11 +2,13 @@
 #include <X11/XF86keysym.h>
 
 /* palette (string macros so dmenu can reuse them) */
-#define FONT    "0xProto Nerd Font Mono:size=10"  /* explicit font = no fontconfig fallback scans */
+#define FONT    "0xProto Nerd Font Mono:size=12"  /* explicit font = no fontconfig fallback scans */
 #define C_BG    "#000000"
 #define C_DIM   "#8a8a8a"
 #define C_ACC   "#ff2a2a"   /* red accent: selected tag, focused border, launcher highlight */
 #define C_BORD  "#1c1c1c"
+#define C_BRACK C_ACC       /* the [ ] around each status item */
+#define C_INFO  "#e6e6e6"   /* the text inside them; set to C_ACC for all-red */
 
 /* appearance */
 static const unsigned int borderpx  = 1;
@@ -20,10 +22,14 @@ static const char col_bg[]     = C_BG;
 static const char col_dim[]    = C_DIM;
 static const char col_acc[]    = C_ACC;
 static const char col_border[] = C_BORD;
+static const char col_brack[]  = C_BRACK;
+static const char col_info[]   = C_INFO;
 static const char *colors[][3] = {
 	/*               fg       bg      border     */
 	[SchemeNorm] = { col_dim, col_bg, col_border },
 	[SchemeSel]  = { col_acc, col_bg, col_acc    },
+	[SchemeBracket] = { col_brack, col_bg, col_border },  /* status: [ ]  (\001 in slstatus) */
+	[SchemeInfo]    = { col_info,  col_bg, col_border },  /* status: text (\002 in slstatus) */
 };
 
 /* tagging */
