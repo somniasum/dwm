@@ -1,0 +1,25 @@
+#!/bin/sh
+# compositor: switch picom on/off. dwm runs without a compositor by default (zero overhead);
+# turn it on for a tear-free desktop, turn it off for the lowest latency.
+# usage: compositor [toggle|on|off]      (Super+F10 = toggle)
+set -eu
+
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/picom.conf"
+
+start() {
+	command -v picom >/dev/null 2>&1 || { echo "compositor: picom is not installed (sudo dnf install picom)" >&2; exit 1; }
+	if [ -f "$CONF" ]; then
+		picom --config "$CONF" -b
+	else
+		picom --backend glx --vsync -b
+	fi
+}
+
+case "${1:-toggle}" in
+	on)  pgrep -x picom >/dev/null || start ;;
+	off) pkill -x picom || true ;;
+	toggle)
+		if pgrep -x picom >/dev/null; then pkill -x picom; else start; fi
+		;;
+	*) echo "usage: compositor [toggle|on|off]" >&2; exit 1 ;;
+esac

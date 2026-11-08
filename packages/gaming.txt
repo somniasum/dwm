@@ -1,0 +1,5 @@
+# gaming extras (installed by tweaks/install-tweaks.sh --packages)
+gamemode
+gamescope
+mangohud
+picom

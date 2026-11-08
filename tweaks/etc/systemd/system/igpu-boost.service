@@ -1,0 +1,11 @@
+[Unit]
+Description=Pin the Intel iGPU minimum clock (dwm-setup, see bin/igpu-boost)
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/igpu-boost apply
+ExecStop=/usr/local/bin/igpu-boost restore
+
+[Install]
+WantedBy=multi-user.target

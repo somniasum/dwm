@@ -1,0 +1,8 @@
+# coding extras (installed by tweaks/install-tweaks.sh --packages)
+# ccache: caches C/C++ compiles. mold: much faster linker. The rest are fast search/navigation tools.
+ccache
+mold
+clang
+ripgrep
+fd-find
+fzf

@@ -6,16 +6,36 @@ xset s off -dpms                # no screen blanking
 xsetroot -solid '#000000'       # fallback if the wallpaper is missing
 xsetroot -cursor_name left_ptr  # normal arrow instead of the X-shaped root cursor
 
+# ---- performance environment: inherited by everything dwm launches (Steam, games, builds) ----
+# Mesa's shader cache defaults to 1G. A bigger one means compiled shaders survive between runs,
+# and every cache miss on a spinning disk is a stutter.
+export MESA_SHADER_CACHE_MAX_SIZE=10G
+
+# CPU favours speed over power saving (only if power-profiles-daemon is installed)
+command -v powerprofilesctl >/dev/null 2>&1 && powerprofilesctl set performance >/dev/null 2>&1 &
+
 # wallpaper: feh paints the root window once and exits (no daemon, no RAM kept)
 [ -f "$HOME/.config/wallpaper.png" ] && feh --no-fehbg --bg-fill "$HOME/.config/wallpaper.png" &
+
+# runtime dir for the bar's helper files (same fallback as install.sh and bin/volume)
+RUNDIR="/run/user/$(id -u)"
+[ -d "$RUNDIR" ] || RUNDIR=/tmp
+
+# iGPU clock for the bar's [ gpu ] item: link the live frequency file from sysfs.
+# The card number changes between boots/kernels, so find it instead of hard-coding it.
+for f in /sys/class/drm/card*/gt_cur_freq_mhz /sys/class/drm/card*/gt/gt0/rps_cur_freq_mhz; do
+	if [ -r "$f" ]; then
+		ln -sf "$f" "$RUNDIR/igpufreq"
+		break
+	fi
+done
 
 # volume item for the bar: write the current value now (PipeWire may need a moment after login)
 ( i=0; until /usr/local/bin/volume sync; do i=$((i + 1)); [ "$i" -ge 10 ] && break; sleep 1; done ) &
 
 # optional, uncomment what you want:
 # /usr/local/bin/volume watch &         # keep [ vol ] in sync with changes made outside the keys
-# powerprofilesctl set performance      # CPU favours speed over power saving
-# picom -b --backend glx --vsync        # only if you see tearing (costs a little GPU)
+# /usr/local/bin/compositor on          # tear-free desktop at login (or toggle any time: Super+F10)
 
 slstatus &
 exec dwm

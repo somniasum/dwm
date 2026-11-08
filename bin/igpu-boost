@@ -1,0 +1,46 @@
+#!/bin/sh
+# igpu-boost: stop the Intel iGPU from idling at a low clock and ramping up late.
+# On an HD 630 the clock ramp is a classic source of micro-stutter in light-load games.
+# This pins the *minimum* (and the boost) clock to the chip's maximum; the card still powers
+# down fully when idle (RC6), so it costs heat only while something is actually drawing.
+# Must run as root (systemd runs it at boot: tweaks/etc/systemd/system/igpu-boost.service).
+# usage: igpu-boost [apply|restore|status]
+set -eu
+
+find_card() {
+	# prints "<dir> <rp0> <rpn> <min> <boost>" file names relative to <dir>, for whichever layout exists
+	for d in /sys/class/drm/card[0-9]*; do
+		if [ -r "$d/gt_RP0_freq_mhz" ]; then
+			echo "$d gt_RP0_freq_mhz gt_RPn_freq_mhz gt_min_freq_mhz gt_boost_freq_mhz"; return 0
+		fi
+		if [ -r "$d/gt/gt0/rps_RP0_freq_mhz" ]; then
+			echo "$d/gt/gt0 rps_RP0_freq_mhz rps_RPn_freq_mhz rps_min_freq_mhz rps_boost_freq_mhz"; return 0
+		fi
+	done
+	return 1
+}
+
+[ "$(id -u)" -eq 0 ] || { echo "igpu-boost: run as root" >&2; exit 1; }
+action=${1:-apply}
+info=$(find_card) || { echo "igpu-boost: no Intel iGPU frequency files found, nothing to do" >&2; exit 0; }
+# shellcheck disable=SC2086
+set -- $info
+dir=$1 rp0=$2 rpn=$3 minf=$4 boostf=$5
+
+case "$action" in
+	apply)
+		max=$(cat "$dir/$rp0")
+		echo "$max" > "$dir/$minf"
+		if [ -w "$dir/$boostf" ]; then echo "$max" > "$dir/$boostf"; fi
+		echo "igpu-boost: min and boost clock set to ${max} MHz ($dir)"
+		;;
+	restore)
+		cat "$dir/$rpn" > "$dir/$minf"
+		if [ -w "$dir/$boostf" ]; then cat "$dir/$rp0" > "$dir/$boostf"; fi
+		echo "igpu-boost: clocks restored ($dir)"
+		;;
+	status)
+		echo "min $(cat "$dir/$minf") MHz, boost $(cat "$dir/$boostf" 2>/dev/null || echo ?) MHz, max $(cat "$dir/$rp0") MHz"
+		;;
+	*) echo "usage: igpu-boost [apply|restore|status]" >&2; exit 1 ;;
+esac

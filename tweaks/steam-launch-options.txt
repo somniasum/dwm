@@ -1,0 +1,15 @@
+Steam > right-click a game > Properties > General > Launch Options
+
+Everyday (shader cache size is already exported by ~/.xinitrc):
+  gamemoderun mangohud %command%
+
+Sekiro / anything GPU-bound on the HD 630: render small, upscale with FSR.
+Replace 1920x1080 with your monitor's real resolution:
+  gamescope -w 1280 -h 720 -W 1920 -H 1080 -F fsr -f -- gamemoderun %command%
+  (try 1600x900 if 720p looks too soft; the HUD overlay: add --mangoapp after -f)
+
+NTSYNC (only if your Proton build doesn't use /dev/ntsync by itself; Proton-GE / Proton-CachyOS):
+  PROTON_USE_NTSYNC=1 gamemoderun mangohud %command%
+
+Native OpenGL games only:
+  MESA_GLTHREAD=true gamemoderun %command%

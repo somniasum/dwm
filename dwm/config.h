@@ -36,8 +36,15 @@ static const char *colors[][3] = {
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 static const Rule rules[] = {
-	/* class     instance  title  tags mask  isfloating  monitor */
-	{ "Gimp",    NULL,     NULL,  0,         1,          -1 },
+	/* class     instance  title            tags mask  isfloating  monitor */
+	{ "Gimp",    NULL,     NULL,            0,         1,          -1 },
+	/* Steam: client on tag 8, its small windows float. dwm applies EVERY matching rule (tags are
+	 * OR-ed, the last isfloating wins), so the generic Steam rule must come before the specific ones.
+	 * Games get no rule on purpose: they open on the tag you launched them from, and fullscreen
+	 * is handled by dwm itself (the bar is covered and the border drops). */
+	{ "Steam",   NULL,     NULL,            1 << 7,    0,          -1 },
+	{ "Steam",   NULL,     "Friends List",  1 << 7,    1,          -1 },
+	{ "Steam",   NULL,     "Steam Settings",1 << 7,    1,          -1 },
 };
 
 /* layout(s) */
@@ -72,7 +79,7 @@ static const char *launchcmd[] = { "/bin/sh", "-c",
 /* raw command runner: anything in $PATH (dwm.c expects the names dmenucmd / dmenumon) */
 static char dmenumon[2] = "0";
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-i", "-fn", FONT, "-nb", C_BG, "-nf", C_DIM, "-sb", C_ACC, "-sf", C_BG, NULL };
-static const char *termcmd[]  = { "alacritty", NULL };
+static const char *termcmd[]  = { "ghostty", NULL };
 
 /* helper scripts (installed to /usr/local/bin by install.sh) */
 static const char *shotregion[] = { "/usr/local/bin/shot", "region", NULL };
@@ -81,6 +88,7 @@ static const char *shotwindow[] = { "/usr/local/bin/shot", "window", NULL };
 static const char *ledtoggle[]  = { "/usr/local/bin/kbd-led", NULL };
 static const char *kbdlock[]    = { "/usr/local/bin/kbd-lock", "lock", NULL };
 static const char *kbdunlock[]  = { "/usr/local/bin/kbd-lock", "unlock", NULL };
+static const char *compositor[] = { "/usr/local/bin/compositor", "toggle", NULL };  /* picom on/off (bin/compositor) */
 
 /* audio (PipeWire) and media players (MPRIS); bin/volume also feeds the bar's [ vol ] item */
 static const char *volup[]    = { "/usr/local/bin/volume", "up",   NULL };
@@ -121,6 +129,8 @@ static const Key keys[] = {
 	/* keyboard: LEDs on/off, and lock (disable) the keyboard */
 	{ MODKEY,                       XK_F8,                    spawn,          {.v = ledtoggle } },
 	{ MODKEY,                       XK_F9,                    spawn,          {.v = kbdlock } },
+	/* compositor: off by default (zero overhead); toggle it for a tear-free desktop outside games */
+	{ MODKEY,                       XK_F10,                   spawn,          {.v = compositor } },
 	/* windows */
 	{ MODKEY,                       XK_q,                     killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_q,                     quit,           {0} },
